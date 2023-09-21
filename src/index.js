@@ -1,16 +1,23 @@
+import { session, Telegraf } from 'telegraf'
 import './config.js'
-import { Telegraf } from 'telegraf'
+import { stageManager } from './stages/index.js'
+import { addCommand } from './utils/botFn.js'
 
+// 🤖 Config Bot
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
-bot.start(ctx => ctx.reply('Welcome'))
-bot.help(ctx => ctx.reply('Send me a sticker'))
-bot.on('sticker', ctx => ctx.reply('👍'))
+// 🛠️ Middlewares
+bot.use(session())
+bot.use(stageManager.stage.middleware())
 
-bot.hears('hi', ctx => ctx.reply('Hey there'))
+// 📲 Commands
+// ----- Scene Commands
+stageManager.commands.map(command => addCommand(bot, command))
 
-bot.command('pito', (ctx) => {
-  ctx.reply('comes')
+// ----- Bot Commands
+bot.help(ctx => {
+  ctx.reply('Estos son todos los comandos: ')
+  ctx.reply(...stageManager.commands.map(cmd => `/${cmd}`))
 })
 
 bot.launch()
