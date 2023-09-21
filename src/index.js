@@ -12,12 +12,20 @@ bot.use(stageManager.stage.middleware())
 
 // 📲 Commands
 // ----- Scene Commands
-stageManager.commands.map(command => addCommand(bot, command))
+stageManager.commands.map(({ name }) => addCommand(bot, name))
 
 // ----- Bot Commands
-bot.help(ctx => {
-  ctx.reply('Estos son todos los comandos: ')
-  ctx.reply(...stageManager.commands.map(cmd => `/${cmd}`))
+bot.help(async ctx => {
+  await ctx.reply('Estos son todos los comandos: ')
+
+  const commandsFormat =
+    stageManager.commands
+      .map(
+        ({ name, description }) => `/${name} - ${description}`
+      )
+      .reduce((prev, cur) => prev + ' \n' + cur)
+
+  await ctx.reply(commandsFormat)
 })
 
 bot.launch()
